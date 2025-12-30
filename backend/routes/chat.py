@@ -5,16 +5,12 @@ from services.prompt_builder import PromptBuilder
 from services.user_service import UserService
 from services.ollama_client import OllamaClient
 from services.location_service import LocationService
+from services.ai import get_ollama_client
 from utils.intent import detect_intent
+
 
 bp = Blueprint('chat', __name__, url_prefix='/api/chat')
 
-def get_ollama_client():
-    try:
-        from ollama import Client
-        return Client()
-    except Exception:
-        return None
 
 
 
@@ -61,14 +57,24 @@ def chat():
         
         # 5. Generate response
         print(f"🤖 Checking AI availability...")
-        if get_ollama_client():
-            print(f"✅ AI Engine Online. Calling Ollama...")
+        client = get_ollama_client()
+        
+        if client:
+            print(f"✅ local dev only. Calling Ollama...")
             response_text = ollama_client.generate_response(prompt)
+            # Ensure the specific "Local AI response" format if strictly required, 
+            # but usually, we want the actual AI response for dev.
+            # Following user request literally for the fallback logic:
         else:
-            print(f"🔁 AI Engine Offline. Using Demo Mode Fallback.")
-            response_text = "GuideMeAI is currently running in **Demo Mode**. \n\nDirect AI generation is unavailable because the local engine (Ollama) is not detected on this host. However, you can still explore the **Heritage Explorer** and interact with pre-baked knowledge about India's top destinations!"
+            print(f"🔁 Render / cloud fallback active.")
+            return jsonify({
+                "reply": "AI demo mode is active. Backend is running successfully.",
+                "response": "AI demo mode is active. Backend is running successfully.",
+                "status": "success"
+            })
 
         print(f"✅ Received response ({len(response_text)} chars)")
+
         
         # Extract map data if present (Ollama sometimes adds extra whitespace or newlines)
 

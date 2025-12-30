@@ -17,9 +17,10 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(map_bp)
 
-    @app.route("/health")
+    @app.route("/health", methods=["GET"])
     def health():
         return jsonify({"status": "ok"})
+
 
     return app
 
