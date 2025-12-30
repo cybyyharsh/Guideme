@@ -5,8 +5,9 @@ window.API = {
     BASE_URL: (() => {
         if (location.hostname.includes("github.io")) return null;
         if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return "http://127.0.0.1:5000";
-        return "https://YOUR-BACKEND.onrender.com"; // User should replace this
+        return "https://guideme-api.onrender.com";
     })(),
+
 
     async request(endpoint, method = "POST", body = null) {
         if (!this.BASE_URL) {
