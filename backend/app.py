@@ -5,7 +5,7 @@ from backend.routes.chat import bp as chat_bp
 app = Flask(__name__)
 CORS(app)
 
-# Register routes
+# ✅ REGISTER CHAT ROUTES
 app.register_blueprint(chat_bp)
 
 @app.route("/health", methods=["GET"])

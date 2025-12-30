@@ -4,9 +4,9 @@ bp = Blueprint("chat", __name__, url_prefix="/chat")
 
 @bp.route("/", methods=["POST"])
 def chat():
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
     message = data.get("message", "")
 
     return jsonify({
         "reply": f"Demo response received: {message}"
-    })
+    }), 200
