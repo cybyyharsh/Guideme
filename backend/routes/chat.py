@@ -9,6 +9,15 @@ from utils.intent import detect_intent
 
 bp = Blueprint('chat', __name__, url_prefix='/api/chat')
 
+def get_ollama_client():
+    try:
+        from ollama import Client
+        return Client()
+    except Exception:
+        return None
+
+
+
 @bp.route('/', methods=['POST'])
 def chat():
     try:
@@ -51,11 +60,18 @@ def chat():
 
         
         # 5. Generate response
-        print(f"🤖 Calling Ollama...")
-        response_text = ollama_client.generate_response(prompt)
+        print(f"🤖 Checking AI availability...")
+        if get_ollama_client():
+            print(f"✅ AI Engine Online. Calling Ollama...")
+            response_text = ollama_client.generate_response(prompt)
+        else:
+            print(f"🔁 AI Engine Offline. Using Demo Mode Fallback.")
+            response_text = "GuideMeAI is currently running in **Demo Mode**. \n\nDirect AI generation is unavailable because the local engine (Ollama) is not detected on this host. However, you can still explore the **Heritage Explorer** and interact with pre-baked knowledge about India's top destinations!"
+
         print(f"✅ Received response ({len(response_text)} chars)")
         
         # Extract map data if present (Ollama sometimes adds extra whitespace or newlines)
+
         map_data = None
         map_match = re.search(r'\[MAP_DATA:\s*(.*?)\]', response_text, re.DOTALL)
         if map_match:
@@ -71,7 +87,9 @@ def chat():
 
         return jsonify({
             'response': response_text,
+            'reply': response_text,
             'intent': intent,
+
             'agent_type': intent,
             'status': 'success',
             'location_context': location_context, # Return updated context to frontend
